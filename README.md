@@ -1,5 +1,5 @@
 # bashJS
-Attempt to recreate the bash experience on a webpage (with no Linux to interact with)
+Attempt to recreate the bash experience on a webpage (with no Linux or other back end to interact with)
 
 ## Current demo (may not always be the most up to date)
 
