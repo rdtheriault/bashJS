@@ -29,6 +29,9 @@ function processing(input) {
   else if (cmd.startsWith("cd")){
     processCd(cmd)
   }
+  else if (cmd.startsWith("cat")){
+    processCat(cmd)
+  }
   else{
     errored();
   }
@@ -37,10 +40,6 @@ function processing(input) {
   t1.fixTextHeight();//update the scroll so the input is still at the bottom
 }
 
-function removePathing(input){
-  var lengthTotal = login.length + path.length;
-  return input.substring(lengthTotal);
-}
 /*
 Fix so it only goes to places that exist (if includes changed dir)
 
@@ -80,11 +79,33 @@ function processls(cmd){
   }
 }
 
+function processCat(cmd){
+  if (cmd.startsWith("cat ")){
+    var list = cmd.split(" ");
+    var newLoc = "";
+    if(list[1].startsWith("/")){
+      newLoc = list[1];
+    }
+    else{//add location and check for files
+      newLoc = addLoc(list[1]);
+    }
+    if ( isFile(newLoc) ){
+      t1.print(files[newLoc]);
+    }
+    else{
+      t1.print("cat: can't open "+ newLoc +": No such file or directory");
+    }
+  }
+}
+
 function processCd(cmd){
   if (cmd.startsWith("cd ")){
     var list = cmd.split(" ");
     var newDir = list[1];
-    if(dirs.includes(newDir)){
+    if ( isFile(addLoc(newDir)) || isFile(newDir) ){
+      t1.print("cd: can't cd to " + newDir + ": Not a directory")
+    }
+    else if(dirs.includes(newDir)){
       loc = newDir;
     }
     else if(newDir == ".."){
@@ -136,6 +157,26 @@ function updatePath(){
   else {
     path = loc + "$ ";
   }
+}
+
+function removePathing(input){//take all put current away from path
+  var lengthTotal = login.length + path.length;
+  return input.substring(lengthTotal);
+}
+
+function addLoc(extra){//add current to loc to get full path
+  var newLoc = loc + "/" + extra;
+  return newLoc;
+}
+
+function isFile(path){//make sure to send full path
+  if (path in files){
+    return true;
+  }
+  else {
+    return false;
+  }
+
 }
 
 function errored(msg) {
