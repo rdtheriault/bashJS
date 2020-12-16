@@ -10,7 +10,7 @@ t1.fixOverflow();
 
 document.body.appendChild(t1.html)
 
-t1.print('This is a fake installation of Kali Linux')
+t1.print('This is a fake installation of Kali Linux');
 t1.input(login+path, function (input) {
   processing(input);
 })
@@ -23,23 +23,65 @@ function nextLine() {
 
 function processing(input) {
   var cmd = removePathing(input);
-  if (cmd.startsWith("ls")){//ls can be run without anything after it.
-    processls(cmd)
-  }
-  else if (cmd.startsWith("cd")){
-    processCd(cmd)
-  }
-  else if (cmd.startsWith("cat")){
-    processCat(cmd)
-  }
-  else{
-    errored();
+  var parts = parseCmd(cmd);
+  switch (parts[0]){
+    case "ls":
+      processls(parts);break;
+    case "cd":
+      processCd(parts);break;
+    case "cat":
+      processCat(parts);break;
+    case "mkdir":
+      processMkdir(parts);break;
+    case "ping":
+      processPing(parts);break;
+    default:
+      errored();
   }
 
   nextLine();
   t1.fixTextHeight();//update the scroll so the input is still at the bottom
 }
 
+function parseCmd(cmd){
+  var parts = cmd.split(" ");
+  return parts;
+}
+
+function processMkdir(cmd){
+  errored("mkdir is not installed");
+}
+//change to handle host names (regexprs ip addr)
+function processPing(cmd){
+  if (cmd.length > 1){
+    console.log(cmd[1]);
+    if (cmd[1] in comps){
+      t1.print(' ');
+      t1.print('Pinging ' + cmd[1] + ' with 32 bytes of data:');
+      t1.print('Reply from ' + cmd[1] + ': bytes=32 time=1ms TTL=126');
+      t1.print('Reply from ' + cmd[1] + ': bytes=32 time=1ms TTL=126');
+      t1.print('Reply from ' + cmd[1] + ': bytes=32 time=1ms TTL=126');
+      t1.print(' ');
+      t1.print('Ping statistics for ' + cmd[1] + ':');
+      t1.print('      Packets: Sent = 4, Received = 4, Lost = 4 (0% loss),');
+      t1.print('Approximate round trip times in milli-seconds: ');
+      t1.print('      Minimum = 0ms, Maximum = 1ms, Average = 0ms');
+    }
+    else if(!validateIP(cmd[1])){
+      t1.print('Ping request could not find host ' + cmd[1] + '. Please check the name and try again. ');
+    }
+    else{
+      t1.print(' ');
+      t1.print('Pinging ' + cmd[1] + ' with 32 bytes of data:');
+      t1.print('Request timed out.');
+      t1.print('Request timed out.');
+      t1.print('Request timed out.');
+      t1.print(' ');
+      t1.print('Ping statistics for ' + cmd[1] + ':');
+      t1.print('      Packets: Sent = 4, Received = 0, Lost = 4 (100% loss),');
+    }
+  }
+}
 /*
 Fix so it only goes to places that exist (if includes changed dir)
 
@@ -47,7 +89,7 @@ Fix so it only goes to places that exist (if includes changed dir)
 */
 function processls(cmd){
   var dirArray = []
-  if (cmd.startsWith("ls")){
+  if (cmd[0] == "ls"){
     //check command list of correct commands()
 
     for (var i = 0;i < dirs.length;i++){
@@ -80,8 +122,8 @@ function processls(cmd){
 }
 
 function processCat(cmd){
-  if (cmd.startsWith("cat ")){
-    var list = cmd.split(" ");
+  if (cmd.length > 1){
+    var list = cmd;
     var newLoc = "";
     if(list[1].startsWith("/")){
       newLoc = list[1];
@@ -96,12 +138,14 @@ function processCat(cmd){
       t1.print("cat: can't open "+ newLoc +": No such file or directory");
     }
   }
+  else{
+    t1.print("Incorrect use of cat command");
+  }
 }
 
 function processCd(cmd){
-  if (cmd.startsWith("cd ")){
-    var list = cmd.split(" ");
-    var newDir = list[1];
+  if (cmd.length > 1){
+    var newDir = cmd[1];
     if ( isFile(addLoc(newDir)) || isFile(newDir) ){
       t1.print("cd: can't cd to " + newDir + ": Not a directory")
     }
@@ -198,4 +242,12 @@ function goBackOne(path){//takes path and goes back one directory    /home/admin
   }else{
     return final;
   }
+}
+
+function validateIP(ipaddress) {
+  if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ipaddress)) {
+    return (true)
+  }
+  //alert("You have entered an invalid IP address!")
+  return (false)
 }
