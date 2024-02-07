@@ -3,7 +3,7 @@ Attempt to recreate the bash experience on a webpage (with no Linux or other bac
 
 ## Current demo (may not always be the most up to date)
 
-http://0014.tech/bash/
+http://0014.tech/a/bash/
 
 ## "Branched" off of terminal.js
 
